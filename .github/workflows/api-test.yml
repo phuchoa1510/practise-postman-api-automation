@@ -1,4 +1,4 @@
-name: API Functional & Performance Tests
+name: API Functional, Security & Performance Tests
 
 on:
   push:
@@ -26,17 +26,26 @@ jobs:
       - name: Setup k6
         uses: grafana/setup-k6-action@v1
 
-      - name: Install Newman
+      - name: Install Newman & Reporters
         run: npm install -g newman newman-reporter-htmlextra
+
+      - name: Prepare Public Directory
+        run: mkdir -p public
 
       - name: Run Functional Tests (Newman)
         run: |
-          mkdir -p public
           newman run "Reqres Auth Flow.postman_collection.json" \
             --folder "DataTests" \
             -d search_data.csv \
             -r cli,htmlextra \
             --reporter-htmlextra-export public/index.html
+
+      - name: Run Security Tests (Newman)
+        continue-on-error: true
+        run: |
+          newman run "security_tests.postman_collection.json" \
+            -r cli,htmlextra \
+            --reporter-htmlextra-export public/security.html
 
       - name: Run Performance Tests (k6)
         run: k6 run load_test.js
@@ -44,7 +53,7 @@ jobs:
       - name: Move k6 Report to Public Folder
         run: cp k6_summary.html public/k6.html
 
-      - name: Deploy Both Reports to GitHub Pages
+      - name: Deploy All Reports to GitHub Pages
         if: always()
         uses: peaceiris/actions-gh-pages@v4
         with:
