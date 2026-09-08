@@ -11,8 +11,9 @@ permissions:
   id-token: write
 
 jobs:
-  functional-tests:
+  test-and-deploy:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -22,11 +23,13 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Install Newman
-        run: |
-          npm install -g newman newman-reporter-htmlextra
+      - name: Setup k6
+        uses: grafana/setup-k6-action@v1
 
-      - name: Run Newman Tests
+      - name: Install Newman
+        run: npm install -g newman newman-reporter-htmlextra
+
+      - name: Run Functional Tests (Newman)
         run: |
           mkdir -p public
           newman run "Reqres Auth Flow.postman_collection.json" \
@@ -35,28 +38,15 @@ jobs:
             -r cli,htmlextra \
             --reporter-htmlextra-export public/index.html
 
-      - name: Deploy Functional Report to GitHub Pages
+      - name: Run Performance Tests (k6)
+        run: k6 run load_test.js
+
+      - name: Move k6 Report to Public Folder
+        run: cp k6_summary.html public/k6.html
+
+      - name: Deploy Both Reports to GitHub Pages
         if: always()
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./public
-
-  performance-tests:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup k6
-        uses: grafana/setup-k6-action@v1
-
-      - name: Run k6 Load Test
-        run: k6 run load_test.js
-
-      - name: Upload k6 Report
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: k6-performance-report
-          path: k6_summary.html
