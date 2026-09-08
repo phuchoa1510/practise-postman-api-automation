@@ -38,7 +38,7 @@ jobs:
             --folder "DataTests" \
             -d search_data.csv \
             -r cli,htmlextra \
-            --reporter-htmlextra-export public/index.html
+            --reporter-htmlextra-export public/functional.html
 
       - name: Run Security Tests (Newman)
         continue-on-error: true
@@ -50,8 +50,10 @@ jobs:
       - name: Run Performance Tests (k6)
         run: k6 run load_test.js
 
-      - name: Move k6 Report to Public Folder
-        run: cp k6_summary.html public/k6.html
+      - name: Move Reports & Portal to Public Folder
+        run: |
+          cp k6_summary.html public/k6.html
+          cp index.html public/index.html
 
       - name: Deploy All Reports to GitHub Pages
         if: always()
