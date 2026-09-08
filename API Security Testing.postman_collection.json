@@ -175,60 +175,10 @@
       ]
     },
     {
-      "name": "06 - Rate Limiting Testing",
-      "item": [
-        {
-          "name": "Security - Rate Limit Bypass Check",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "if (!pm.variables.get(\"request_count\")) {\r\n    pm.variables.set(\"request_count\", 1);\r\n}\r\nlet count = Number(pm.variables.get(\"request_count\"));\r\nconst maxAttempts = 15; // Thử nghiệm gửi 15 request dồn dập\r\n\r\npm.test(`Attempt ${count}: System should enforce Rate Limiting (HTTP 429)`, function () {\r\n    if (count >= 10) {\r\n        // Từ request thứ 10 trở đi, kỳ vọng server phải chặn lại bằng mã 429\r\n        pm.expect(pm.response.code).to.eql(429);\r\n    } else {\r\n        // Các request ban đầu được phép thành công\r\n        pm.expect(pm.response.code).to.be.oneOf([200, 201]);\r\n    }\r\n});\r\n\r\n// Tự động lặp lại chính request này cho đến khi đủ số lượng\r\nif (count < maxAttempts) {\r\n    pm.variables.set(\"request_count\", count + 1);\r\n    postman.setNextRequest(\"Security - Rate Limit Bypass Check\");\r\n} else {\r\n    pm.variables.unset(\"request_count\");\r\n    postman.setNextRequest(null); // Dừng chuỗi test\r\n}"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\r\n  \"title\": \"Flooding test\",\r\n  \"body\": \"Rate limit verification\",\r\n  \"userId\": 1\r\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            },
-            "url": {
-              "raw": "https://jsonplaceholder.typicode.com/posts",
-              "protocol": "https",
-              "host": [
-                "jsonplaceholder",
-                "typicode",
-                "com"
-              ],
-              "path": [
-                "posts"
-              ]
-            }
-          },
-          "response": []
-        }
-      ]
-    },
-    {
       "name": "03 - Broken Authentication Testing",
       "item": [
         {
-          "name": "04 - Broken Authentication Testing",
+          "name": "Security - Tampered Token Verification",
           "event": [
             {
               "listen": "test",
@@ -266,11 +216,32 @@
         },
         {
           "name": "Security - Missing Auth Header Check",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Security Gate: Server must reject requests missing Authorization header with 401 Unauthorized\", function () {\r\n    // Hệ thống an toàn bắt buộc phải từ chối truy cập và trả về mã HTTP 401\r\n    pm.expect(pm.response.code).to.eql(401);\r\n});"
+                ]
+              }
+            }
+          ],
           "request": {
-            "method": "GET",
+            "method": "DELETE",
             "header": [],
             "url": {
-              "raw": ""
+              "raw": "https://jsonplaceholder.typicode.com/posts/1",
+              "protocol": "https",
+              "host": [
+                "jsonplaceholder",
+                "typicode",
+                "com"
+              ],
+              "path": [
+                "posts",
+                "1"
+              ]
             }
           },
           "response": []
@@ -323,6 +294,56 @@
               "path": [
                 "posts",
                 "1"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "06 - Rate Limiting Testing",
+      "item": [
+        {
+          "name": "Security - Rate Limit Bypass Check",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (!pm.variables.get(\"request_count\")) {\r\n    pm.variables.set(\"request_count\", 1);\r\n}\r\nlet count = Number(pm.variables.get(\"request_count\"));\r\nconst maxAttempts = 15; // Thử nghiệm gửi 15 request dồn dập\r\n\r\npm.test(`Attempt ${count}: System should enforce Rate Limiting (HTTP 429)`, function () {\r\n    if (count >= 10) {\r\n        // Từ request thứ 10 trở đi, kỳ vọng server phải chặn lại bằng mã 429\r\n        pm.expect(pm.response.code).to.eql(429);\r\n    } else {\r\n        // Các request ban đầu được phép thành công\r\n        pm.expect(pm.response.code).to.be.oneOf([200, 201]);\r\n    }\r\n});\r\n\r\n// Tự động lặp lại chính request này cho đến khi đủ số lượng\r\nif (count < maxAttempts) {\r\n    pm.variables.set(\"request_count\", count + 1);\r\n    postman.setNextRequest(\"Security - Rate Limit Bypass Check\");\r\n} else {\r\n    pm.variables.unset(\"request_count\");\r\n    postman.setNextRequest(null); // Dừng chuỗi test\r\n}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"title\": \"Flooding test\",\r\n  \"body\": \"Rate limit verification\",\r\n  \"userId\": 1\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://jsonplaceholder.typicode.com/posts",
+              "protocol": "https",
+              "host": [
+                "jsonplaceholder",
+                "typicode",
+                "com"
+              ],
+              "path": [
+                "posts"
               ]
             }
           },
