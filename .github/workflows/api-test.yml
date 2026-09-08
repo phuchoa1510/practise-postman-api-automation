@@ -43,7 +43,7 @@ jobs:
       - name: Run Security Tests (Newman)
         continue-on-error: true
         run: |
-          newman run "security_tests.postman_collection.json" \
+          newman run "API Security Testing.postman_collection.json" \
             -r cli,htmlextra \
             --reporter-htmlextra-export public/security.html
 
