@@ -5,6 +5,11 @@ on:
     branches: [ "main", "master" ]
   workflow_dispatch:
 
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
 jobs:
   run-api-tests:
     runs-on: ubuntu-latest
@@ -25,15 +30,16 @@ jobs:
 
       - name: Run Newman Tests with Data File
         run: |
+          mkdir -p public
           newman run "Reqres Auth Flow.postman_collection.json" \
             --folder "DataTests" \
             -d search_data.csv \
             -r cli,htmlextra \
-            --reporter-htmlextra-export report.html
+            --reporter-htmlextra-export public/index.html
 
-      - name: Upload Test Report Artifact
+      - name: Deploy Report to GitHub Pages
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: peaceiris/actions-gh-pages@v4
         with:
-          name: newman-test-report
-          path: report.html
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./public
