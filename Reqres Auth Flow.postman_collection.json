@@ -1,0 +1,168 @@
+{
+  "info": {
+    "_postman_id": "4417809a-a6a0-45bc-9bad-10edf25d5a02",
+    "name": "Reqres Auth Flow",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "58044419"
+  },
+  "item": [
+    {
+      "name": "DataTests",
+      "item": [
+        {
+          "name": "Search Products Data-Driven",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\npm.test(\"Verify userId matches data file\", function () {\r\n    const res = pm.response.json();\r\n    const expected = Number(pm.iterationData.get(\"expectedUserId\"));\r\n    pm.expect(res.userId).to.eql(expected);\r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "https://jsonplaceholder.typicode.com/posts/{{postId}}",
+              "protocol": "https",
+              "host": [
+                "jsonplaceholder",
+                "typicode",
+                "com"
+              ],
+              "path": [
+                "posts",
+                "{{postId}}"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "1. User Login",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "// 1. Kiểm tra đăng nhập thành công\r\npm.test(\"Status code is 200\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\n// 2. Trích xuất accessToken và lưu vào biến\r\npm.test(\"Save accessToken to variable\", function () {\r\n    const res = pm.response.json();\r\n    pm.expect(res).to.have.property(\"accessToken\");\r\n\r\n    // Lưu token vào Collection Variables\r\n    pm.collectionVariables.set(\"jwtToken\", res.accessToken);\r\n});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"username\": \"emilys\",\r\n  \"password\": \"emilyspass\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "https://dummyjson.com/auth/login",
+          "protocol": "https",
+          "host": [
+            "dummyjson",
+            "com"
+          ],
+          "path": [
+            "auth",
+            "login"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "2. Get User Profile",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Access protected route successfully\", function () {\r\n    pm.response.to.have.status(200);\r\n    const res = pm.response.json();\r\n    pm.expect(res.username).to.eql(\"emilys\");\r\n});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{jwtToken}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "https://dummyjson.com/auth/me",
+          "protocol": "https",
+          "host": [
+            "dummyjson",
+            "com"
+          ],
+          "path": [
+            "auth",
+            "me"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "3. Get Auth User - No Token",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "// 1. Kiểm tra mã lỗi 401\r\npm.test(\"Status code is 401 Unauthorized\", function () {\r\n    pm.response.to.have.status(401);\r\n});\r\n\r\n// 2. Kiểm tra thông báo lỗi trả về đúng yêu cầu\r\npm.test(\"Error message matches required token\", function () {\r\n    const res = pm.response.json();\r\n    pm.expect(res.message).to.eql(\"Access Token is required\");\r\n});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "noauth"
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "https://dummyjson.com/auth/me",
+          "protocol": "https",
+          "host": [
+            "dummyjson",
+            "com"
+          ],
+          "path": [
+            "auth",
+            "me"
+          ]
+        }
+      },
+      "response": []
+    }
+  ],
+  "variable": [
+    {
+      "key": "jwtToken",
+      "value": ""
+    }
+  ]
+}
