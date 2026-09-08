@@ -1,55 +1,61 @@
-import http from 'k6/http';
-import { check, group, sleep } from 'k6';
-import { htmlReport } from 'https://raw.githubusercontent.com/benc-uk/k6-reporter/main/dist/bundle.js';
+name: API Functional, Security & Performance Tests
 
-export const options = {
-  stages: [
-    { duration: '10s', target: 10 },
-    { duration: '20s', target: 20 },
-    { duration: '10s', target: 0 },
-  ],
-  thresholds: {
-    'http_req_duration{status:200}': ['p(95)<500'], // GET phải dưới 500ms
-    'http_req_duration{status:201}': ['p(95)<800'], // POST tạo mới phải dưới 800ms
-    http_req_failed: ['rate<0.01'],
-  },
-};
+on:
+  push:
+    branches: [ "main", "master" ]
+  workflow_dispatch:
 
-export default function () {
-  const baseUrl = 'https://jsonplaceholder.typicode.com';
+permissions:
+  contents: write
+  pages: write
+  id-token: write
 
-  // Nhóm 1: Xem danh sách và chi tiết
-  group('Browse Posts', function () {
-    const listRes = http.get(`${baseUrl}/posts`);
-    check(listRes, { 'get list status is 200': (r) => r.status === 200 });
+jobs:
+  test-and-deploy:
+    runs-on: ubuntu-latest
 
-    const detailRes = http.get(`${baseUrl}/posts/1`);
-    check(detailRes, { 'get detail status is 200': (r) => r.status === 200 });
-  });
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-  sleep(0.5);
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
 
-  // Nhóm 2: Tạo bài viết mới
-  group('Create Post Flow', function () {
-    const payload = JSON.stringify({
-      title: 'Performance Testing with k6',
-      body: 'Simulating multi-request workload',
-      userId: 1,
-    });
+      - name: Setup k6
+        uses: grafana/setup-k6-action@v1
 
-    const params = {
-      headers: { 'Content-Type': 'application/json' },
-    };
+      - name: Install Newman & Reporters
+        run: npm install -g newman newman-reporter-htmlextra
 
-    const postRes = http.post(`${baseUrl}/posts`, payload, params);
-    check(postRes, { 'create post status is 201': (r) => r.status === 201 });
-  });
+      - name: Prepare Public Directory
+        run: mkdir -p public
 
-  sleep(1);
-}
+      - name: Run Functional Tests (Newman)
+        run: |
+          newman run "Reqres Auth Flow.postman_collection.json" \
+            --folder "DataTests" \
+            -d search_data.csv \
+            -r cli,htmlextra \
+            --reporter-htmlextra-export public/index.html
 
-export function handleSummary(data) {
-  return {
-    'k6_summary.html': htmlReport(data),
-  };
-}
+      - name: Run Security Tests (Newman)
+        continue-on-error: true
+        run: |
+          newman run "security_tests.postman_collection.json" \
+            -r cli,htmlextra \
+            --reporter-htmlextra-export public/security.html
+
+      - name: Run Performance Tests (k6)
+        run: k6 run load_test.js
+
+      - name: Move k6 Report to Public Folder
+        run: cp k6_summary.html public/k6.html
+
+      - name: Deploy All Reports to GitHub Pages
+        if: always()
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./public

@@ -1,0 +1,352 @@
+{
+  "info": {
+    "_postman_id": "f77f7cbc-3f77-4fe8-acf1-82978dce3893",
+    "name": "API Security Testing",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "58044419"
+  },
+  "item": [
+    {
+      "name": "01 - BOLA (IDOR) Testing",
+      "item": [
+        {
+          "name": "Request 1 - User A",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"User A Authenticated\", function () {\r\n    pm.response.to.have.status(201);\r\n    // Giả lập lưu token của User A (UserId = 1)\r\n    pm.collectionVariables.set(\"attacker_token\", \"Bearer token-user-1-abc\");\r\n    pm.collectionVariables.set(\"attacker_id\", 1);\r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"username\": \"attacker\",\r\n  \"userId\": 1\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://jsonplaceholder.typicode.com/posts",
+              "protocol": "https",
+              "host": [
+                "jsonplaceholder",
+                "typicode",
+                "com"
+              ],
+              "path": [
+                "posts"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Request 2 - User B",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Resource belongs to another user (Victim)\", function () {\r\n    pm.response.to.have.status(200);\r\n    const data = pm.response.json();\r\n    // Lưu ID bài viết của nạn nhân\r\n    pm.collectionVariables.set(\"victim_post_id\", data.id);\r\n    pm.collectionVariables.set(\"victim_user_id\", data.userId);\r\n\r\n    // Kiểm tra chắc chắn tài nguyên này không phải của User A\r\n    pm.expect(data.userId).to.not.eql(pm.collectionVariables.get(\"attacker_id\"));\r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "https://jsonplaceholder.typicode.com/posts/2",
+              "protocol": "https",
+              "host": [
+                "jsonplaceholder",
+                "typicode",
+                "com"
+              ],
+              "path": [
+                "posts",
+                "2"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Exploit Request",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Security Gate: System must block unauthorized update (BOLA/IDOR check)\", function () {\r\n    // Trong môi trường an toàn, backend bắt buộc phải trả về 403 Forbidden\r\n    // Nếu trả về 200/204 nghĩa là dính lỗi BOLA\r\n    pm.expect(pm.response.code).to.be.oneOf([403, 401]);\r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "{{attacker_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"id\": {{victim_post_id}},\r\n  \"title\": \"Hacked by User 1\",\r\n  \"body\": \"Tampered content\",\r\n  \"userId\": {{victim_user_id}}\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://jsonplaceholder.typicode.com/posts/){{victim_post_id}}",
+              "protocol": "https",
+              "host": [
+                "jsonplaceholder",
+                "typicode",
+                "com"
+              ],
+              "path": [
+                "posts",
+                "){{victim_post_id}}"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "02 - Mass Assignment Testing",
+      "item": [
+        {
+          "name": "Security - Mass Assignment Exploit",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Security Gate: System must strip or reject unauthorized privilege escalation fields\", function () {\r\n    const res = pm.response.json();\r\n\r\n    // Kiểm tra các trường nhạy cảm không được phép tồn tại trong dữ liệu lưu trữ\r\n    pm.expect(res).to.not.have.property(\"role\", \"admin\");\r\n    pm.expect(res).to.not.have.property(\"is_admin\", true);\r\n    pm.expect(res).to.not.have.property(\"balance\");\r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"name\": \"Standard User\",\r\n  \"username\": \"std_user\",\r\n  \"email\": \"user@example.com\",\r\n  \"role\": \"admin\",\r\n  \"is_admin\": true,\r\n  \"balance\": 1000000\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://jsonplaceholder.typicode.com/users",
+              "protocol": "https",
+              "host": [
+                "jsonplaceholder",
+                "typicode",
+                "com"
+              ],
+              "path": [
+                "users"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "06 - Rate Limiting Testing",
+      "item": [
+        {
+          "name": "Security - Rate Limit Bypass Check",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (!pm.variables.get(\"request_count\")) {\r\n    pm.variables.set(\"request_count\", 1);\r\n}\r\nlet count = Number(pm.variables.get(\"request_count\"));\r\nconst maxAttempts = 15; // Thử nghiệm gửi 15 request dồn dập\r\n\r\npm.test(`Attempt ${count}: System should enforce Rate Limiting (HTTP 429)`, function () {\r\n    if (count >= 10) {\r\n        // Từ request thứ 10 trở đi, kỳ vọng server phải chặn lại bằng mã 429\r\n        pm.expect(pm.response.code).to.eql(429);\r\n    } else {\r\n        // Các request ban đầu được phép thành công\r\n        pm.expect(pm.response.code).to.be.oneOf([200, 201]);\r\n    }\r\n});\r\n\r\n// Tự động lặp lại chính request này cho đến khi đủ số lượng\r\nif (count < maxAttempts) {\r\n    pm.variables.set(\"request_count\", count + 1);\r\n    postman.setNextRequest(\"Security - Rate Limit Bypass Check\");\r\n} else {\r\n    pm.variables.unset(\"request_count\");\r\n    postman.setNextRequest(null); // Dừng chuỗi test\r\n}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"title\": \"Flooding test\",\r\n  \"body\": \"Rate limit verification\",\r\n  \"userId\": 1\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://jsonplaceholder.typicode.com/posts",
+              "protocol": "https",
+              "host": [
+                "jsonplaceholder",
+                "typicode",
+                "com"
+              ],
+              "path": [
+                "posts"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "03 - Broken Authentication Testing",
+      "item": [
+        {
+          "name": "04 - Broken Authentication Testing",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Security Gate: Server must reject forged/tampered tokens with 401 Unauthorized\", function () {\r\n    // Hệ thống an toàn bắt buộc phải từ chối token không hợp lệ bằng mã 401\r\n    pm.expect(pm.response.code).to.eql(401);\r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer this-is-a-fake-and-forged-token-xyz"
+              }
+            ],
+            "url": {
+              "raw": "https://jsonplaceholder.typicode.com/posts/1",
+              "protocol": "https",
+              "host": [
+                "jsonplaceholder",
+                "typicode",
+                "com"
+              ],
+              "path": [
+                "posts",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Security - Missing Auth Header Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": ""
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "04 - SQL Injection Testing",
+      "item": [
+        {
+          "name": "Security - SQL Injection in Query Param",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": ""
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "05 - Security Misconfiguration",
+      "item": [
+        {
+          "name": "Security - Headers & Fingerprinting Check",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// 1. Kiểm tra rò rỉ công nghệ Backend (Server Fingerprinting)\r\npm.test(\"Security Gate: Server must not expose backend technology via X-Powered-By\", function () {\r\n    pm.expect(pm.response.headers.has(\"X-Powered-By\")).to.be.false;\r\n});\r\n\r\n// 2. Kiểm tra header chống đánh hơi loại nội dung (MIME Sniffing)\r\npm.test(\"Security Gate: System should include X-Content-Type-Options: nosniff\", function () {\r\n    pm.expect(pm.response.headers.get(\"X-Content-Type-Options\")).to.eql(\"nosniff\");\r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "https://jsonplaceholder.typicode.com/posts/1",
+              "protocol": "https",
+              "host": [
+                "jsonplaceholder",
+                "typicode",
+                "com"
+              ],
+              "path": [
+                "posts",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "attacker_token",
+      "value": ""
+    },
+    {
+      "key": "attacker_id",
+      "value": ""
+    },
+    {
+      "key": "victim_post_id",
+      "value": ""
+    },
+    {
+      "key": "victim_user_id",
+      "value": ""
+    }
+  ]
+}
