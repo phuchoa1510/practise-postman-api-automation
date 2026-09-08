@@ -38,7 +38,7 @@ jobs:
 
       - name: Run Security Tests (Newman)
         continue-on-error: true
-        run: newman run "API Security Testing.postman_collection.json" -r cli,htmlextra --reporter-htmlextra-export public/security.html
+        run: newman run "API Security Testing.postman_collection.json" -e staging.postman_environment.json \-r cli,htmlextra --reporter-htmlextra-export public/security.html
 
       - name: Run Performance Tests (k6)
         continue-on-error: true
