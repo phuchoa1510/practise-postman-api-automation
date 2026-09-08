@@ -1,0 +1,168 @@
+{
+  "info": {
+    "_postman_id": "dd124359-59fa-4bfd-8c10-f061f9539183",
+    "name": "Practise API Testing",
+    "description": "### Welcome to Postman! This is your first collection. \n\nCollections are your starting point for building and testing APIs. You can use this one to:\n\n• Group related requests\n• Test your API in real-world scenarios\n• Document and share your requests\n\nUpdate the name and overview whenever you’re ready to make it yours.\n\n[Learn more about Postman Collections.](https://learning.postman.com/docs/collections/collections-overview/)",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "58044419"
+  },
+  "item": [
+    {
+      "name": "Get",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "base_url/posts/1",
+          "host": [
+            "base_url"
+          ],
+          "path": [
+            "posts",
+            "1"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "1. Create Post",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "// 1. Kiểm tra Status Code có phải 201 không\r\npm.test(\"Status code is 201\", function () {\r\n    pm.response.to.have.status(201);\r\n});\r\n\r\n// 2. Kiểm tra thời gian phản hồi dưới 1000ms\r\npm.test(\"Response time is less than 1000ms\", function () {\r\n    pm.expect(pm.response.responseTime).to.be.below(1000);\r\n});\r\n\r\n// 3. Kiểm tra dữ liệu trả về đúng nội dung đã gửi\r\npm.test(\"Validate response body data\", function () {\r\n    const jsonData = pm.response.json();\r\n    pm.expect(jsonData.title).to.eql(\"Bai viet moi\");\r\n    pm.expect(jsonData).to.have.property(\"id\");\r\n});\r\nconst res = pm.response.json();\r\npm.collectionVariables.set(\"createdPostId\", 1);"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"title\": \"Bai viet moi\",\r\n  \"body\": \"Noi dung bai viet\",\r\n  \"userId\": 1\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "base_url/posts",
+          "host": [
+            "base_url"
+          ],
+          "path": [
+            "posts"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "2. Get Post",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\npm.test(\"Response time is less than 1000ms\", function () {\r\n    pm.expect(pm.response.responseTime).to.be.below(1000);\r\n});\r\n\r\npm.test(\"Validate response body has id\", function () {\r\n    const jsonData = pm.response.json();\r\n    pm.expect(jsonData).to.have.property(\"id\");\r\n});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "base_url/posts/1",
+          "host": [
+            "base_url"
+          ],
+          "path": [
+            "posts",
+            "1"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "3. Update Post",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\npm.test(\"Title has been updated\", function () {\r\n    const jsonData = pm.response.json();\r\n    pm.expect(jsonData.title).to.eql(\"Tieu de da sua\");\r\n});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "PUT",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"id\": 1,\r\n  \"title\": \"Tieu de da sua\",\r\n  \"body\": \"Noi dung da cap nhat\",\r\n  \"userId\": 1\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "base_url/posts/{{createdPostId}}",
+          "host": [
+            "base_url"
+          ],
+          "path": [
+            "posts",
+            "{{createdPostId}}"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "4. Delete Post",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "// Với JSONPlaceholder, DELETE trả về 200 OK\r\npm.test(\"Status code is 200\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\n// Response trả về rỗng {}\r\npm.test(\"Body is empty object\", function () {\r\n    const jsonData = pm.response.json();\r\n    pm.expect(jsonData).to.be.an(\"object\").that.is.empty;\r\n});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "base_url/posts/{{createdPostId}}",
+          "host": [
+            "base_url"
+          ],
+          "path": [
+            "posts",
+            "{{createdPostId}}"
+          ]
+        }
+      },
+      "response": []
+    }
+  ],
+  "variable": [
+    {
+      "key": "createdPostId",
+      "value": ""
+    }
+  ]
+}

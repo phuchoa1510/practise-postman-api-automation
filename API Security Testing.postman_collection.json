@@ -35,12 +35,9 @@
               }
             },
             "url": {
-              "raw": "https://jsonplaceholder.typicode.com/posts",
-              "protocol": "https",
+              "raw": "{{base_url}}/posts",
               "host": [
-                "jsonplaceholder",
-                "typicode",
-                "com"
+                "{{base_url}}"
               ],
               "path": [
                 "posts"
@@ -66,12 +63,9 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "https://jsonplaceholder.typicode.com/posts/2",
-              "protocol": "https",
+              "raw": "{{base_url}}/posts/2",
               "host": [
-                "jsonplaceholder",
-                "typicode",
-                "com"
+                "{{base_url}}"
               ],
               "path": [
                 "posts",
@@ -112,12 +106,9 @@
               }
             },
             "url": {
-              "raw": "https://jsonplaceholder.typicode.com/posts/){{victim_post_id}}",
-              "protocol": "https",
+              "raw": "{{base_url}}/posts/){{victim_post_id}}",
               "host": [
-                "jsonplaceholder",
-                "typicode",
-                "com"
+                "{{base_url}}"
               ],
               "path": [
                 "posts",
@@ -158,12 +149,9 @@
               }
             },
             "url": {
-              "raw": "https://jsonplaceholder.typicode.com/users",
-              "protocol": "https",
+              "raw": "{{base_url}}/users",
               "host": [
-                "jsonplaceholder",
-                "typicode",
-                "com"
+                "{{base_url}}"
               ],
               "path": [
                 "users"
@@ -195,16 +183,13 @@
             "header": [
               {
                 "key": "Authorization",
-                "value": "Bearer this-is-a-fake-and-forged-token-xyz"
+                "value": "Bearer {{admin_token}}"
               }
             ],
             "url": {
-              "raw": "https://jsonplaceholder.typicode.com/posts/1",
-              "protocol": "https",
+              "raw": "{{base_url}}/posts/1",
               "host": [
-                "jsonplaceholder",
-                "typicode",
-                "com"
+                "{{base_url}}"
               ],
               "path": [
                 "posts",
@@ -231,12 +216,9 @@
             "method": "DELETE",
             "header": [],
             "url": {
-              "raw": "https://jsonplaceholder.typicode.com/posts/1",
-              "protocol": "https",
+              "raw": "{{base_url}}/posts/1",
               "host": [
-                "jsonplaceholder",
-                "typicode",
-                "com"
+                "{{base_url}}"
               ],
               "path": [
                 "posts",
@@ -253,11 +235,33 @@
       "item": [
         {
           "name": "Security - SQL Injection in Query Param",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Security Gate: System must safely handle SQL injection payloads\", function () {\r\n    // 1. Máy chủ không được văng lỗi hệ thống 500 Internal Server Error\r\n    pm.expect(pm.response.code).to.not.eql(500);\r\n\r\n    // 2. Không được để lộ thông tin nhạy cảm hoặc từ khóa lỗi của Database\r\n    const responseBody = pm.response.text().toLowerCase();\r\n    const dangerousSignatures = [\r\n        \"syntax error\", \r\n        \"sqlite3::\", \r\n        \"psycopg2\", \r\n        \"sql syntax\", \r\n        \"mysql_fetch\", \r\n        \"ora-\", \r\n        \"unclosed quotation mark\"\r\n    ];\r\n\r\n    dangerousSignatures.forEach(signature => {\r\n        pm.expect(responseBody).to.not.include(signature);\r\n    });\r\n});"
+                ]
+              }
+            }
+          ],
           "request": {
             "method": "GET",
-            "header": [],
+            "header": [
+              {
+                "key": "title",
+                "value": "' OR '1'='1"
+              }
+            ],
             "url": {
-              "raw": ""
+              "raw": "{{base_url}}/posts",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "posts"
+              ]
             }
           },
           "response": []
@@ -284,12 +288,9 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "https://jsonplaceholder.typicode.com/posts/1",
-              "protocol": "https",
+              "raw": "base_url/posts/1",
               "host": [
-                "jsonplaceholder",
-                "typicode",
-                "com"
+                "base_url"
               ],
               "path": [
                 "posts",
@@ -335,12 +336,9 @@
               }
             },
             "url": {
-              "raw": "https://jsonplaceholder.typicode.com/posts",
-              "protocol": "https",
+              "raw": "base_url/posts",
               "host": [
-                "jsonplaceholder",
-                "typicode",
-                "com"
+                "base_url"
               ],
               "path": [
                 "posts"

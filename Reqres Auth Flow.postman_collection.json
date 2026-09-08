@@ -26,12 +26,9 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "https://jsonplaceholder.typicode.com/posts/{{postId}}",
-              "protocol": "https",
+              "raw": "base_url/posts/{{postId}}",
               "host": [
-                "jsonplaceholder",
-                "typicode",
-                "com"
+                "base_url"
               ],
               "path": [
                 "posts",
