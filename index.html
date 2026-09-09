@@ -1,78 +1,67 @@
-<!DOCTYPE html>
-<html lang="vi">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>API Automation & Security Dashboard</title>
-    <style>
-        :root {
-            --bg-color: #0d1117;
-            --card-bg: #161b22;
-            --border-color: #30363d;
-            --text-main: #c9d1d9;
-            --text-muted: #8b949e;
-            --primary: #58a6ff;
-            --functional: #238636;
-            --security: #da3633;
-            --perf: #8957e5;
-        }
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
-        body { background-color: var(--bg-color); color: var(--text-main); min-height: 100vh; display: flex; flex-direction: column; }
-        header { padding: 40px 20px 20px; text-align: center; border-bottom: 1px solid var(--border-color); }
-        header h1 { font-size: 2rem; color: #f0f6fc; margin-bottom: 8px; }
-        header p { color: var(--text-muted); font-size: 1rem; }
-        .container { max-width: 1100px; margin: 40px auto; padding: 0 20px; width: 100%; flex: 1; }
-        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px; }
-        .card { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 24px; display: flex; flex-direction: column; justify-content: space-between; transition: transform 0.2s ease, border-color 0.2s ease; }
-        .card:hover { transform: translateY(-4px); border-color: var(--primary); }
-        .badge { font-size: 0.75rem; text-transform: uppercase; font-weight: 700; padding: 4px 8px; border-radius: 20px; margin-bottom: 12px; display: inline-block; }
-        .badge-func { background: rgba(35, 134, 54, 0.2); color: #3fb950; border: 1px solid rgba(35, 134, 54, 0.4); }
-        .badge-sec { background: rgba(218, 54, 51, 0.2); color: #f85149; border: 1px solid rgba(218, 54, 51, 0.4); }
-        .badge-perf { background: rgba(137, 87, 229, 0.2); color: #bc8cff; border: 1px solid rgba(137, 87, 229, 0.4); }
-        .card h2 { font-size: 1.3rem; color: #f0f6fc; margin-bottom: 10px; }
-        .card p { color: var(--text-muted); font-size: 0.9rem; line-height: 1.5; margin-bottom: 24px; }
-        .btn { display: inline-block; text-align: center; text-decoration: none; padding: 10px 16px; font-size: 0.9rem; font-weight: 600; border-radius: 6px; color: #ffffff; }
-        .btn-func { background-color: var(--functional); }
-        .btn-sec { background-color: var(--security); }
-        .btn-perf { background-color: var(--perf); }
-        footer { text-align: center; padding: 24px; color: var(--text-muted); font-size: 0.85rem; border-top: 1px solid var(--border-color); }
-    </style>
-</head>
-<body>
-    <header>
-        <h1>Quality & Security Automation Hub</h1>
-        <p>Continuous Testing Portal for API Functional, OWASP Security, and Load Profiles</p>
-    </header>
-    <div class="container">
-        <div class="grid">
-            <div class="card">
-                <div>
-                    <span class="badge badge-func">Functional QA</span>
-                    <h2>Functional Tests</h2>
-                    <p>Kiểm thử tự động luồng nghiệp vụ API (Auth Flow) theo cơ chế Data-Driven Testing sử dụng Newman & Postman.</p>
-                </div>
-                <a href="functional.html" class="btn btn-func">Xem Báo Cáo Functional</a>
-            </div>
-            <div class="card">
-                <div>
-                    <span class="badge badge-sec">Security Gate</span>
-                    <h2>OWASP API Security</h2>
-                    <p>Kiểm tra tự động các lỗ hổng OWASP API Top 10 (BOLA/IDOR, Mass Assignment, Auth, SQLi, Cấu hình an toàn).</p>
-                </div>
-                <a href="security.html" class="btn btn-sec">Xem Báo Cáo Security</a>
-            </div>
-            <div class="card">
-                <div>
-                    <span class="badge badge-perf">Performance</span>
-                    <h2>k6 Load Testing</h2>
-                    <p>Đo lường độ chịu tải của hệ thống, phân tích thời gian phản hồi (p95, p99), số lượng VUs và Requests/giây.</p>
-                </div>
-                <a href="k6.html" class="btn btn-perf">Xem Báo Cáo Performance</a>
-            </div>
-        </div>
-    </div>
-    <footer>
-        Deployed automatically via GitHub Actions & Pages
-    </footer>
-</body>
-</html>
+name: API Functional, Security & Performance Tests
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+jobs:
+  test-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Setup k6
+        uses: grafana/setup-k6-action@v1
+
+      - name: Install Newman & Reporters
+        run: npm install -g newman newman-reporter-htmlextra
+
+      - name: Prepare Public Directory
+        run: mkdir -p public
+
+      - name: Run Functional Tests (Newman)
+        continue-on-error: true
+        run: |
+          newman run "Reqres Auth Flow.postman_collection.json" \
+            --folder "DataTests" \
+            -d search_data.csv \
+            -r cli,htmlextra \
+            --reporter-htmlextra-export public/functional.html
+
+      - name: Run Security Tests (Newman)
+        continue-on-error: true
+        run: |
+          newman run "API Security Testing.postman_collection.json" \
+            -e staging.postman_environment.json \
+            -r cli,htmlextra \
+            --reporter-htmlextra-export public/security.html
+
+      - name: Run Performance Tests (k6)
+        continue-on-error: true
+        run: k6 run load_test.js
+
+      - name: Copy Reports & Portal to Public Folder
+        run: |
+          if [ -f k6_summary.html ]; then cp k6_summary.html public/k6.html; fi
+          cp index.html public/index.html
+          ls -la public
+
+      - name: Deploy All Reports to GitHub Pages
+        if: always()
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./public
