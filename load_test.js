@@ -1,67 +1,31 @@
-name: API Functional, Security & Performance Tests
+import http from 'k6/http';
+import { check, sleep } from 'k6';
+import { htmlReport } from 'https://raw.githubusercontent.com/benc-uk/k6-reporter/main/dist/bundle.js';
 
-on:
-  push:
-    branches: [ "main", "master" ]
-  workflow_dispatch:
+export const options = {
+  stages: [
+    { duration: '10s', target: 5 },
+    { duration: '20s', target: 10 },
+    { duration: '10s', target: 0 },
+  ],
+  thresholds: {
+    http_req_failed: ['rate<0.01'],
+    http_req_duration: ['p(95)<1000'],
+  },
+};
 
-permissions:
-  contents: write
-  pages: write
-  id-token: write
+export default function () {
+  const res = http.get('https://jsonplaceholder.typicode.com/posts');
 
-jobs:
-  test-and-deploy:
-    runs-on: ubuntu-latest
+  check(res, {
+    'status is 200': (r) => r.status === 200,
+  });
 
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+  sleep(1);
+}
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-
-      - name: Setup k6
-        uses: grafana/setup-k6-action@v1
-
-      - name: Install Newman & Reporters
-        run: npm install -g newman newman-reporter-htmlextra
-
-      - name: Prepare Public Directory
-        run: mkdir -p public
-
-      - name: Run Functional Tests (Newman)
-        continue-on-error: true
-        run: |
-          newman run "Reqres Auth Flow.postman_collection.json" \
-            --folder "DataTests" \
-            -d search_data.csv \
-            -r cli,htmlextra \
-            --reporter-htmlextra-export public/functional.html
-
-      - name: Run Security Tests (Newman)
-        continue-on-error: true
-        run: |
-          newman run "API Security Testing.postman_collection.json" \
-            -e staging.postman_environment.json \
-            -r cli,htmlextra \
-            --reporter-htmlextra-export public/security.html
-
-      - name: Run Performance Tests (k6)
-        continue-on-error: true
-        run: k6 run load_test.js
-
-      - name: Copy Reports & Portal to Public Folder
-        run: |
-          if [ -f k6_summary.html ]; then cp k6_summary.html public/k6.html; fi
-          cp index.html public/index.html
-          ls -la public
-
-      - name: Deploy All Reports to GitHub Pages
-        if: always()
-        uses: peaceiris/actions-gh-pages@v4
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./public
+export function handleSummary(data) {
+  return {
+    'k6_summary.html': htmlReport(data),
+  };
+}
