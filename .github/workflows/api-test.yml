@@ -45,7 +45,7 @@ jobs:
         continue-on-error: true
         run: |
           newman run "API Security Testing.postman_collection.json" \
-            -e STAGGING.postman_environment.json \
+            -e staging.postman_environment.json \
             -r cli,htmlextra \
             --reporter-htmlextra-export public/security.html
 
