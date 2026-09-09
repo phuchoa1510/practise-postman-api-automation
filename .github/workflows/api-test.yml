@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
+      - name: Checkout repository
         uses: actions/checkout@v4
 
       - name: Setup Node.js
@@ -26,7 +26,7 @@ jobs:
       - name: Setup k6
         uses: grafana/setup-k6-action@v1
 
-      - name: Install Newman & Reporters
+      - name: Install Newman & htmlextra reporter
         run: npm install -g newman newman-reporter-htmlextra
 
       - name: Prepare Public Directory
@@ -45,7 +45,7 @@ jobs:
         continue-on-error: true
         run: |
           newman run "API Security Testing.postman_collection.json" \
-            -e staging.postman_environment.json \
+            -e STAGGING.postman_environment.json \
             -r cli,htmlextra \
             --reporter-htmlextra-export public/security.html
 
@@ -53,10 +53,10 @@ jobs:
         continue-on-error: true
         run: k6 run load_test.js
 
-      - name: Copy Reports & Portal to Public Folder
+      - name: Sync Reports & Portal
         run: |
           if [ -f k6_summary.html ]; then cp k6_summary.html public/k6.html; fi
-          cp index.html public/index.html
+          if [ -f index.html ]; then cp index.html public/index.html; fi
           ls -la public
 
       - name: Deploy All Reports to GitHub Pages
