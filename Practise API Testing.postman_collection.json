@@ -13,9 +13,9 @@
         "method": "GET",
         "header": [],
         "url": {
-          "raw": "base_url/posts/1",
+          "raw": "{{base_url}}/posts/1",
           "host": [
-            "base_url"
+            "{{base_url}}"
           ],
           "path": [
             "posts",
@@ -51,9 +51,9 @@
           }
         },
         "url": {
-          "raw": "base_url/posts",
+          "raw": "{{base_url}}/posts",
           "host": [
-            "base_url"
+            "{{base_url}}"
           ],
           "path": [
             "posts"
@@ -79,9 +79,9 @@
         "method": "GET",
         "header": [],
         "url": {
-          "raw": "base_url/posts/1",
+          "raw": "{{base_url}}/posts/1",
           "host": [
-            "base_url"
+            "{{base_url}}"
           ],
           "path": [
             "posts",
@@ -117,9 +117,9 @@
           }
         },
         "url": {
-          "raw": "base_url/posts/{{createdPostId}}",
+          "raw": "{{base_url}}/posts/{{createdPostId}}",
           "host": [
-            "base_url"
+            "{{base_url}}"
           ],
           "path": [
             "posts",
@@ -146,9 +146,9 @@
         "method": "DELETE",
         "header": [],
         "url": {
-          "raw": "base_url/posts/{{createdPostId}}",
+          "raw": "{{base_url}}/posts/{{createdPostId}}",
           "host": [
-            "base_url"
+            "{{base_url}}"
           ],
           "path": [
             "posts",

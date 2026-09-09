@@ -26,9 +26,9 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "base_url/posts/{{postId}}",
+              "raw": "{{base_url}}/posts/{{postId}}",
               "host": [
-                "base_url"
+                "{{base_url}}"
               ],
               "path": [
                 "posts",
