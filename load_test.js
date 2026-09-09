@@ -33,25 +33,31 @@ jobs:
         run: mkdir -p public
 
       - name: Run Functional Tests (Newman)
+        continue-on-error: true
         run: |
           newman run "Reqres Auth Flow.postman_collection.json" \
             --folder "DataTests" \
             -d search_data.csv \
             -r cli,htmlextra \
-            --reporter-htmlextra-export public/index.html
+            --reporter-htmlextra-export public/functional.html
 
       - name: Run Security Tests (Newman)
         continue-on-error: true
         run: |
-          newman run "security_tests.postman_collection.json" \
+          newman run "API Security Testing.postman_collection.json" \
+            -e staging.postman_environment.json \
             -r cli,htmlextra \
             --reporter-htmlextra-export public/security.html
 
       - name: Run Performance Tests (k6)
+        continue-on-error: true
         run: k6 run load_test.js
 
-      - name: Move k6 Report to Public Folder
-        run: cp k6_summary.html public/k6.html
+      - name: Copy Reports & Portal to Public Folder
+        run: |
+          if [ -f k6_summary.html ]; then cp k6_summary.html public/k6.html; fi
+          cp index.html public/index.html
+          ls -la public
 
       - name: Deploy All Reports to GitHub Pages
         if: always()

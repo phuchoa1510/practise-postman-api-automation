@@ -16,175 +16,64 @@
             --security: #da3633;
             --perf: #8957e5;
         }
-
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-        }
-
-        body {
-            background-color: var(--bg-color);
-            color: var(--text-main);
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }
-
-        header {
-            padding: 40px 20px 20px;
-            text-align: center;
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        header h1 {
-            font-size: 2rem;
-            color: #f0f6fc;
-            margin-bottom: 8px;
-        }
-
-        header p {
-            color: var(--text-muted);
-            font-size: 1rem;
-        }
-
-        .container {
-            max-width: 1100px;
-            margin: 40px auto;
-            padding: 0 20px;
-            width: 100%;
-            flex: 1;
-        }
-
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 24px;
-        }
-
-        .card {
-            background: var(--card-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            padding: 24px;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            transition: transform 0.2s ease, border-color 0.2s ease;
-        }
-
-        .card:hover {
-            transform: translateY(-4px);
-            border-color: var(--primary);
-        }
-
-        .card-header {
-            display: flex;
-            align-items: center;
-            margin-bottom: 16px;
-        }
-
-        .badge {
-            font-size: 0.75rem;
-            text-transform: uppercase;
-            font-weight: 700;
-            padding: 4px 8px;
-            border-radius: 20px;
-            margin-bottom: 12px;
-            display: inline-block;
-        }
-
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+        body { background-color: var(--bg-color); color: var(--text-main); min-height: 100vh; display: flex; flex-direction: column; }
+        header { padding: 40px 20px 20px; text-align: center; border-bottom: 1px solid var(--border-color); }
+        header h1 { font-size: 2rem; color: #f0f6fc; margin-bottom: 8px; }
+        header p { color: var(--text-muted); font-size: 1rem; }
+        .container { max-width: 1100px; margin: 40px auto; padding: 0 20px; width: 100%; flex: 1; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px; }
+        .card { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 24px; display: flex; flex-direction: column; justify-content: space-between; transition: transform 0.2s ease, border-color 0.2s ease; }
+        .card:hover { transform: translateY(-4px); border-color: var(--primary); }
+        .badge { font-size: 0.75rem; text-transform: uppercase; font-weight: 700; padding: 4px 8px; border-radius: 20px; margin-bottom: 12px; display: inline-block; }
         .badge-func { background: rgba(35, 134, 54, 0.2); color: #3fb950; border: 1px solid rgba(35, 134, 54, 0.4); }
         .badge-sec { background: rgba(218, 54, 51, 0.2); color: #f85149; border: 1px solid rgba(218, 54, 51, 0.4); }
         .badge-perf { background: rgba(137, 87, 229, 0.2); color: #bc8cff; border: 1px solid rgba(137, 87, 229, 0.4); }
-
-        .card h2 {
-            font-size: 1.3rem;
-            color: #f0f6fc;
-            margin-bottom: 10px;
-        }
-
-        .card p {
-            color: var(--text-muted);
-            font-size: 0.9rem;
-            line-height: 1.5;
-            margin-bottom: 24px;
-        }
-
-        .btn {
-            display: inline-block;
-            text-align: center;
-            text-decoration: none;
-            padding: 10px 16px;
-            font-size: 0.9rem;
-            font-weight: 600;
-            border-radius: 6px;
-            color: #ffffff;
-            transition: opacity 0.2s ease;
-        }
-
-        .btn:hover {
-            opacity: 0.85;
-        }
-
+        .card h2 { font-size: 1.3rem; color: #f0f6fc; margin-bottom: 10px; }
+        .card p { color: var(--text-muted); font-size: 0.9rem; line-height: 1.5; margin-bottom: 24px; }
+        .btn { display: inline-block; text-align: center; text-decoration: none; padding: 10px 16px; font-size: 0.9rem; font-weight: 600; border-radius: 6px; color: #ffffff; transition: opacity 0.2s; }
+        .btn:hover { opacity: 0.85; }
         .btn-func { background-color: var(--functional); }
         .btn-sec { background-color: var(--security); }
         .btn-perf { background-color: var(--perf); }
-
-        footer {
-            text-align: center;
-            padding: 24px;
-            color: var(--text-muted);
-            font-size: 0.85rem;
-            border-top: 1px solid var(--border-color);
-        }
+        footer { text-align: center; padding: 24px; color: var(--text-muted); font-size: 0.85rem; border-top: 1px solid var(--border-color); }
     </style>
 </head>
 <body>
-
     <header>
         <h1>Quality & Security Automation Hub</h1>
         <p>Continuous Testing Portal for API Functional, OWASP Security, and Load Profiles</p>
     </header>
-
     <div class="container">
         <div class="grid">
-            <!-- Functional Testing Card -->
             <div class="card">
                 <div>
                     <span class="badge badge-func">Functional QA</span>
                     <h2>Functional Tests</h2>
-                    <p>Bộ kiểm thử tự động luồng nghiệp vụ API (Auth Flow) thực thi theo cơ chế Data-Driven Testing sử dụng Newman & Postman.</p>
+                    <p>Kiểm thử tự động luồng nghiệp vụ API theo cơ chế Data-Driven Testing sử dụng Newman & Postman.</p>
                 </div>
                 <a href="functional.html" class="btn btn-func">Xem Báo Cáo Functional</a>
             </div>
-
-            <!-- Security Testing Card -->
             <div class="card">
                 <div>
                     <span class="badge badge-sec">Security Gate</span>
                     <h2>OWASP API Security</h2>
-                    <p>Kiểm tra tự động các lỗ hổng OWASP API Top 10 bao gồm BOLA/IDOR, Mass Assignment, Broken Auth, SQL Injection và Cấu hình an toàn.</p>
+                    <p>Kiểm tra tự động các lỗ hổng OWASP API Top 10 (BOLA/IDOR, Mass Assignment, Auth, SQLi, Cấu hình an toàn).</p>
                 </div>
                 <a href="security.html" class="btn btn-sec">Xem Báo Cáo Security</a>
             </div>
-
-            <!-- Performance Testing Card -->
             <div class="card">
                 <div>
                     <span class="badge badge-perf">Performance</span>
                     <h2>k6 Load Testing</h2>
-                    <p>Đo lường độ chịu tải của hệ thống, phân tích thời gian phản hồi (Latency Percentiles p95, p99), số lượng VUs và tỷ lệ Request/s.</p>
+                    <p>Đo lường độ chịu tải của hệ thống, phân tích thời gian phản hồi (p95, p99), số lượng VUs và Requests/giây.</p>
                 </div>
                 <a href="k6.html" class="btn btn-perf">Xem Báo Cáo Performance</a>
             </div>
         </div>
     </div>
-
     <footer>
         Deployed automatically via GitHub Actions & Pages
     </footer>
-
 </body>
 </html>
