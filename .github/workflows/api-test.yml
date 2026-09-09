@@ -13,6 +13,8 @@ permissions:
 jobs:
   test-and-deploy:
     runs-on: ubuntu-latest
+    env:
+      TZ: 'Asia/Ho_Chi_Minh'   # Đồng bộ toàn bộ hệ thống sang múi giờ Việt Nam (GMT+7)
 
     steps:
       - name: Checkout repository

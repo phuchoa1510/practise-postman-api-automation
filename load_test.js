@@ -26,7 +26,12 @@ export default function () {
 }
 
 export function handleSummary(data) {
+  // Lấy thời gian hiện tại theo múi giờ Việt Nam
+  const now = new Date().toLocaleString('sv-SE', { timeZone: 'Asia/Ho_Chi_Minh' }).replace(' ', ' ');
+
   return {
-    'k6_summary.html': htmlReport(data),
+    'k6_summary.html': htmlReport(data, {
+      title: `Test Report: ${now} (GMT+7)`,
+    }),
   };
 }
