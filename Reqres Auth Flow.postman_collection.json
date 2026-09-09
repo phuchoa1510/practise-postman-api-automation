@@ -17,7 +17,7 @@
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "pm.test(\"Status code is 200\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\npm.test(\"Verify userId matches data file\", function () {\r\n    const res = pm.response.json();\r\n    const expected = Number(pm.iterationData.get(\"expectedUserId\"));\r\n    pm.expect(res.userId).to.eql(expected);\r\n});"
+                  "// 1. Kiểm tra Status Code\r\npm.test(\"Status code is 200 OK\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\n// 2. Lấy dữ liệu an toàn: nếu chạy CSV thì lấy từ CSV, nếu bấm Send lẻ thì mặc định test với ID = 1\r\nconst expectedPostId = parseInt(pm.iterationData.get(\"postId\") || 1);\r\nconst expectedUserId = parseInt(pm.iterationData.get(\"expectedUserId\") || 1);\r\n\r\n// 3. Xác thực Post ID\r\npm.test(\"Verify Post ID matches iteration data\", function () {\r\n    const jsonData = pm.response.json();\r\n    pm.expect(jsonData.id).to.eql(expectedPostId);\r\n});\r\n\r\n// 4. Xác thực User ID\r\npm.test(\"Verify User ID matches expectedUserId from CSV\", function () {\r\n    const jsonData = pm.response.json();\r\n    pm.expect(jsonData.userId).to.eql(expectedUserId);\r\n});"
                 ]
               }
             }
@@ -26,9 +26,12 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{base_url}}/posts/{{postId}}",
+              "raw": "https://jsonplaceholder.typicode.com/posts/{{postId}}",
+              "protocol": "https",
               "host": [
-                "{{base_url}}"
+                "jsonplaceholder",
+                "typicode",
+                "com"
               ],
               "path": [
                 "posts",
